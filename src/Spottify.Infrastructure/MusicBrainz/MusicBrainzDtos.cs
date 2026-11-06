@@ -42,4 +42,5 @@ internal sealed record TrackDto(
     [property: JsonPropertyName("title")] string Title);
 
 internal sealed record ReleaseBrowseResponse(
+    [property: JsonPropertyName("release-count")] int ReleaseCount,
     [property: JsonPropertyName("releases")] List<ReleaseDto>? Releases);

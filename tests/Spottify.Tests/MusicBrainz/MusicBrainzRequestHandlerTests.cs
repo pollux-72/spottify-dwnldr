@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Spottify.Infrastructure.MusicBrainz;
 using static Spottify.Tests.MusicBrainz.MusicBrainzTestHarness;
@@ -151,6 +152,97 @@ public sealed class MusicBrainzRequestHandlerTests
         await Assert.ThrowsAsync<HttpRequestException>(() => harness.Provider.SearchAsync("A - B", CancellationToken.None));
 
         Assert.Equal(1, attempts);
+    }
+
+    [Fact]
+    public async Task An_attempt_that_never_answers_times_out_and_is_retried_then_reported_as_an_http_error()
+    {
+        var attempts = 0;
+        var options = new MusicBrainzOptions
+        {
+            MinRequestInterval = TimeSpan.Zero,
+            RetryDelay = TimeSpan.Zero,
+            MaxRetries = 1,
+            RequestTimeout = TimeSpan.FromSeconds(1),
+        };
+        await using var harness = new MusicBrainzTestHarness(async (_, cancellationToken) =>
+        {
+            attempts++;
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return Json("{}");
+        }, options);
+
+        // The per-attempt timeout runs in real time, so this takes about two seconds.
+        var failure = await Assert.ThrowsAsync<HttpRequestException>(() => harness.Provider.SearchAsync("A - B", CancellationToken.None));
+
+        Assert.Equal(2, attempts);
+        Assert.Contains("did not answer", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Cancelling_the_call_is_not_mistaken_for_a_timeout()
+    {
+        var options = new MusicBrainzOptions { MinRequestInterval = TimeSpan.Zero, MaxRetries = 3 };
+        await using var harness = new MusicBrainzTestHarness(async (_, cancellationToken) =>
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return Json("{}");
+        }, options);
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => harness.Provider.SearchAsync("A - B", cancellation.Token));
+
+        Assert.Single(harness.Requests); // no retry after the caller gave up
+    }
+
+    [Fact]
+    public async Task A_huge_retry_after_is_capped()
+    {
+        var time = new FakeTimeProvider();
+        var attempts = 0;
+        var options = new MusicBrainzOptions { MinRequestInterval = TimeSpan.Zero, MaxRetryDelay = TimeSpan.FromSeconds(5) };
+        await using var harness = new MusicBrainzTestHarness(_ =>
+        {
+            attempts++;
+            if (attempts > 1)
+            {
+                return Json(OneAlbumHit);
+            }
+
+            var busy = Json("{}", HttpStatusCode.ServiceUnavailable);
+            busy.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(TimeSpan.FromHours(1));
+            return busy;
+        }, options, time);
+
+        var start = time.GetUtcNow();
+        await RunUntilDoneAsync(harness.Provider.SearchAsync("A - B", CancellationToken.None), time);
+
+        Assert.InRange(time.GetUtcNow() - start, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10));
+    }
+
+    [Fact]
+    public async Task A_retry_budget_beyond_thirty_seconds_is_not_cut_off_by_the_client()
+    {
+        // Backoff of 20 s, then 40 s: well over the 30 s the whole pipeline used to be allowed.
+        var time = new FakeTimeProvider();
+        var attempts = 0;
+        var options = new MusicBrainzOptions
+        {
+            MinRequestInterval = TimeSpan.Zero,
+            RetryDelay = TimeSpan.FromSeconds(20),
+            MaxRetryDelay = TimeSpan.FromMinutes(5),
+        };
+        await using var harness = new MusicBrainzTestHarness(_ =>
+            ++attempts < 3 ? Json("{}", HttpStatusCode.ServiceUnavailable) : Json(OneAlbumHit), options, time);
+
+        var start = time.GetUtcNow();
+        await RunUntilDoneAsync(harness.Provider.SearchAsync("A - B", CancellationToken.None), time);
+
+        Assert.Equal(3, attempts);
+        Assert.True(time.GetUtcNow() - start >= TimeSpan.FromSeconds(60));
+
+        var client = harness.Services.GetRequiredService<IHttpClientFactory>().CreateClient("IMetadataProvider");
+        Assert.Equal(Timeout.InfiniteTimeSpan, client.Timeout);
     }
 
     /// <summary>Advances the fake clock until the work finishes, so waits in the code under test do not block.</summary>

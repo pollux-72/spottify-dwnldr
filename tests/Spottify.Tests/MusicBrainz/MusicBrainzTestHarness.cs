@@ -10,9 +10,13 @@ namespace Spottify.Tests.MusicBrainz;
 /// <summary>Runs the real MusicBrainz client against a scripted fake server, with controllable time.</summary>
 internal sealed class MusicBrainzTestHarness : IAsyncDisposable
 {
-    private readonly ServiceProvider _services;
-
     public MusicBrainzTestHarness(Func<HttpRequestMessage, HttpResponseMessage> respond, MusicBrainzOptions? options = null, TimeProvider? time = null)
+        : this((request, _) => Task.FromResult(respond(request)), options, time)
+    {
+    }
+
+    /// <summary>Overload for fakes that must wait, for example to simulate a server that never answers.</summary>
+    public MusicBrainzTestHarness(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond, MusicBrainzOptions? options = null, TimeProvider? time = null)
     {
         Requests = [];
         Time = time ?? TimeProvider.System;
@@ -22,16 +26,18 @@ internal sealed class MusicBrainzTestHarness : IAsyncDisposable
         var services = new ServiceCollection();
         services.AddSingleton(Time);
         services.AddMusicBrainz(options)
-            .ConfigurePrimaryHttpMessageHandler(() => new ScriptedHandler(request =>
+            .ConfigurePrimaryHttpMessageHandler(() => new ScriptedHandler((request, cancellationToken) =>
             {
                 Requests.Add(request.RequestUri!);
                 UserAgents.Add(request.Headers.UserAgent.ToString());
-                return respond(request);
+                return respond(request, cancellationToken);
             }));
 
-        _services = services.BuildServiceProvider();
-        Provider = _services.GetRequiredService<IMetadataProvider>();
+        Services = services.BuildServiceProvider();
+        Provider = Services.GetRequiredService<IMetadataProvider>();
     }
+
+    public ServiceProvider Services { get; }
 
     public IMetadataProvider Provider { get; }
 
@@ -48,11 +54,11 @@ internal sealed class MusicBrainzTestHarness : IAsyncDisposable
     public static HttpResponseMessage Json(string json, HttpStatusCode status = HttpStatusCode.OK) =>
         new(status) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
 
-    public ValueTask DisposeAsync() => _services.DisposeAsync();
+    public ValueTask DisposeAsync() => Services.DisposeAsync();
 
-    private sealed class ScriptedHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
+    private sealed class ScriptedHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> respond) : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            Task.FromResult(respond(request));
+            respond(request, cancellationToken);
     }
 }

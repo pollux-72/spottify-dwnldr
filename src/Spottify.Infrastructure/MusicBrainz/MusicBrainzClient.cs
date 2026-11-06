@@ -14,6 +14,10 @@ internal sealed class MusicBrainzClient(HttpClient http, Microsoft.Extensions.Op
     // MusicBrainz returns at most 100 per page; 25 recordings are enough to see the albums of one song.
     private const int SearchPageSize = 25;
 
+    // Editions are read in pages of 100, at most 5 pages (500 editions) per album, to bound the request count.
+    private const int BrowsePageSize = 100;
+    private const int MaxBrowsePages = 5;
+
     public async Task<IReadOnlyList<AlbumCandidate>> SearchAsync(string query, CancellationToken cancellationToken)
     {
         var song = SongQuery.Parse(query);
@@ -96,11 +100,26 @@ internal sealed class MusicBrainzClient(HttpClient http, Microsoft.Extensions.Op
     private async Task<List<ReleaseDto>> BrowseReleasesAsync(string releaseGroupId, bool officialOnly, CancellationToken cancellationToken)
     {
         var status = officialOnly ? "&status=official" : string.Empty;
-        var browse = await GetAsync<ReleaseBrowseResponse>(
-            $"release?release-group={releaseGroupId}&inc=media+artist-credits{status}&limit=100&fmt=json",
-            cancellationToken).ConfigureAwait(false);
+        var releases = new List<ReleaseDto>();
 
-        return browse?.Releases ?? [];
+        // Albums such as reissued classics have hundreds of editions. Read them all (up to a limit) so the
+        // standard edition and the original year are not decided by an arbitrary first page.
+        for (var page = 0; page < MaxBrowsePages; page++)
+        {
+            var browse = await GetAsync<ReleaseBrowseResponse>(
+                $"release?release-group={releaseGroupId}&inc=media+artist-credits{status}&limit={BrowsePageSize}&offset={page * BrowsePageSize}&fmt=json",
+                cancellationToken).ConfigureAwait(false);
+
+            var batch = browse?.Releases ?? [];
+            releases.AddRange(batch);
+
+            if (batch.Count < BrowsePageSize || releases.Count >= browse!.ReleaseCount)
+            {
+                break;
+            }
+        }
+
+        return releases;
     }
 
     /// <summary>Returns <c>null</c> for 404 and throws <see cref="HttpRequestException"/> for any other failure.</summary>

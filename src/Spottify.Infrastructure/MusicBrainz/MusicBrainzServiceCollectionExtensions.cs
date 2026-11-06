@@ -23,8 +23,11 @@ public static class MusicBrainzServiceCollectionExtensions
         return services
             .AddHttpClient<IMetadataProvider, MusicBrainzClient>(client =>
             {
-                client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
-                client.Timeout = TimeSpan.FromSeconds(30);
+                client.BaseAddress = options.BaseAddress;
+
+                // The client-wide timeout would also cut off throttle waits and retry pauses. Each attempt gets
+                // its own timeout in the request handler instead.
+                client.Timeout = Timeout.InfiniteTimeSpan;
             })
             .AddHttpMessageHandler<MusicBrainzRequestHandler>();
     }

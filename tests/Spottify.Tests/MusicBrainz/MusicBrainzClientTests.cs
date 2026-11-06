@@ -214,6 +214,66 @@ public sealed class MusicBrainzClientTests
     }
 
     [Fact]
+    public async Task Album_details_read_every_page_of_editions_before_choosing_edition_and_year()
+    {
+        // 130 editions: the first page has 100 editions from 2005, the second has 30 that include the original from 1999.
+        await using var harness = new MusicBrainzTestHarness(request =>
+        {
+            var path = request.RequestUri!.AbsolutePath;
+            if (!path.EndsWith("/release", StringComparison.Ordinal))
+            {
+                return Json(Fixture("release-lookup-discovery.json"));
+            }
+
+            var second = request.RequestUri.Query.Contains("offset=100", StringComparison.Ordinal);
+            return Json(EditionsPage(second ? 30 : 100, second ? "1999" : "2005", total: 130));
+        });
+
+        var album = await harness.Provider.GetAlbumAsync(DiscoveryGroupId, CancellationToken.None);
+
+        Assert.NotNull(album);
+        Assert.Equal(1999, album.Year);
+        var browses = harness.Requests.Where(r => r.AbsolutePath.EndsWith("/release", StringComparison.Ordinal)).ToList();
+        Assert.Equal(2, browses.Count);
+        Assert.Contains("offset=0", browses[0].Query, StringComparison.Ordinal);
+        Assert.Contains("offset=100", browses[1].Query, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Album_details_stop_reading_editions_after_a_fixed_number_of_pages()
+    {
+        await using var harness = new MusicBrainzTestHarness(request =>
+            request.RequestUri!.AbsolutePath.EndsWith("/release", StringComparison.Ordinal)
+                ? Json(EditionsPage(100, "2005", total: 10_000))
+                : Json(Fixture("release-lookup-discovery.json")));
+
+        await harness.Provider.GetAlbumAsync(DiscoveryGroupId, CancellationToken.None);
+
+        Assert.Equal(5, harness.Requests.Count(r => r.AbsolutePath.EndsWith("/release", StringComparison.Ordinal)));
+    }
+
+    [Theory]
+    [InlineData("https://musicbrainz.org/ws/2")]
+    [InlineData("https://musicbrainz.org/ws/2/")]
+    public async Task The_base_url_works_with_and_without_a_trailing_slash(string baseUrl)
+    {
+        var options = new MusicBrainzOptions { BaseUrl = baseUrl, MinRequestInterval = TimeSpan.Zero };
+        await using var harness = new MusicBrainzTestHarness(_ => Json("""{"recordings":[]}"""), options);
+
+        await harness.Provider.SearchAsync("A - B", CancellationToken.None);
+
+        Assert.Equal("/ws/2/recording", harness.Requests[0].AbsolutePath);
+    }
+
+    private static string EditionsPage(int count, string date, int total)
+    {
+        var releases = Enumerable.Range(0, count).Select(i =>
+            "{\"id\":\"e" + date + "-" + i + "\",\"title\":\"Discovery\",\"status\":\"Official\",\"date\":\"" + date
+            + "\",\"media\":[{\"position\":1,\"track-count\":14}]}");
+        return "{\"release-count\":" + total + ",\"releases\":[" + string.Join(',', releases) + "]}";
+    }
+
+    [Fact]
     public async Task Album_details_are_null_for_an_unknown_album()
     {
         await using var harness = new MusicBrainzTestHarness(_ => Json("""{"releases":[]}"""));

@@ -41,6 +41,9 @@ Nested keys use a double underscore.
 | `SPOTTIFY_Spottify__MusicBrainz__UserAgent` | `SpottifyDwnldr/0.1 (https://github.com/pollux-72/spottify-dwnldr)` | Sent to MusicBrainz, which blocks anonymous clients. Use `Name/Version (contact)` |
 | `SPOTTIFY_Spottify__MusicBrainz__MinRequestInterval` | `00:00:01.1` | Minimum spacing between requests (MusicBrainz allows about one per second) |
 | `SPOTTIFY_Spottify__MusicBrainz__MaxRetries` | `3` | Retries after a 429 or 5xx answer |
+| `SPOTTIFY_Spottify__MusicBrainz__RequestTimeout` | `00:00:30` | Longest wait for one answer; a slower attempt counts as failed and is retried |
+| `SPOTTIFY_Spottify__MusicBrainz__MaxRetryDelay` | `00:00:30` | Cap for the pause before a retry, even if the server asks for longer |
+| `SPOTTIFY_Spottify__MusicBrainz__BaseUrl` | `https://musicbrainz.org/ws/2/` | Absolute http(s) address; a missing trailing slash is added |
 | `SPOTTIFY_Spottify__MusicBrainz__MaxCandidates` | `8` | Albums returned per search |
 
 Secrets such as API keys and tokens will only be read from the environment and must never be committed.

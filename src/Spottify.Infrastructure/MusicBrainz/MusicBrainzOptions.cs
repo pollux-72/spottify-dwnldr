@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 namespace Spottify.Infrastructure.MusicBrainz;
 
 /// <summary>Settings for the MusicBrainz web service. Bound from <c>Spottify:MusicBrainz</c>.</summary>
-public sealed class MusicBrainzOptions
+public sealed class MusicBrainzOptions : IValidatableObject
 {
     public const string SectionName = "Spottify:MusicBrainz";
 
-    /// <summary>Must end with a slash so relative request paths resolve below it.</summary>
-    [Required, Url]
+    /// <summary>Absolute http(s) address of the web service. A missing trailing slash is added automatically.</summary>
+    [Required(AllowEmptyStrings = false)]
     public string BaseUrl { get; set; } = "https://musicbrainz.org/ws/2/";
 
     /// <summary>
@@ -30,7 +30,34 @@ public sealed class MusicBrainzOptions
     [Range(typeof(TimeSpan), "00:00:00", "00:05:00")]
     public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(2);
 
+    /// <summary>Longest wait for one answer. A request that takes longer counts as a failed attempt and is retried.</summary>
+    [Range(typeof(TimeSpan), "00:00:01", "00:05:00")]
+    public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>Upper bound for the pause before a retry, also when the server asks for a longer Retry-After.</summary>
+    [Range(typeof(TimeSpan), "00:00:00", "00:10:00")]
+    public TimeSpan MaxRetryDelay { get; set; } = TimeSpan.FromSeconds(30);
+
     /// <summary>Upper bound of albums returned from a search.</summary>
     [Range(1, 25)]
     public int MaxCandidates { get; set; } = 8;
+
+    /// <summary><see cref="BaseUrl"/> with the trailing slash that relative request paths need.</summary>
+    public Uri BaseAddress
+    {
+        get
+        {
+            var url = BaseUrl.EndsWith('/') ? BaseUrl : BaseUrl + "/";
+            return new Uri(url, UriKind.Absolute);
+        }
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+        {
+            yield return new ValidationResult(
+                $"{nameof(BaseUrl)} must be an absolute http or https address.", [nameof(BaseUrl)]);
+        }
+    }
 }
