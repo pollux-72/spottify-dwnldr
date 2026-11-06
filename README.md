@@ -37,7 +37,7 @@ Nested keys use a double underscore.
 | Variable | Default | Meaning |
 |---|---|---|
 | `SPOTTIFY_Spottify__DataDirectory` | `data` (`/data` in the image) | Folder for persistent state |
-| `SPOTTIFY_Spottify__DatabaseFileName` | `spottify.db` | SQLite file inside the data directory |
+| `SPOTTIFY_Spottify__DatabaseFileName` | `spottify.db` | SQLite file name (no directories) inside the data directory |
 
 Secrets such as API keys and tokens will only be read from the environment and must never be committed.
 

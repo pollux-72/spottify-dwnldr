@@ -12,6 +12,7 @@ namespace Spottify.Tests.Host;
 public sealed class HostStartupTests : IDisposable
 {
     private const string Variable = "SPOTTIFY_Spottify__DataDirectory";
+    private const string FileNameVariable = "SPOTTIFY_Spottify__DatabaseFileName";
 
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "spottify-host-" + Guid.NewGuid().ToString("N"));
 
@@ -20,6 +21,7 @@ public sealed class HostStartupTests : IDisposable
     public void Dispose()
     {
         Environment.SetEnvironmentVariable(Variable, null);
+        Environment.SetEnvironmentVariable(FileNameVariable, null);
         SqliteConnection.ClearAllPools();
         if (Directory.Exists(_directory))
         {
@@ -37,5 +39,34 @@ public sealed class HostStartupTests : IDisposable
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.True(File.Exists(Path.Combine(_directory, "spottify.db")));
+    }
+
+    [Fact]
+    public async Task Invalid_settings_stop_the_host_before_anything_is_created_on_disk()
+    {
+        Environment.SetEnvironmentVariable(FileNameVariable, "../escaped.db");
+
+        await using var factory = new WebApplicationFactory<Program>();
+
+        var failure = Record.Exception(() => factory.CreateClient());
+
+        Assert.NotNull(failure);
+        Assert.Contains("DatabaseFileName", Flatten(failure), StringComparison.Ordinal);
+        Assert.False(Directory.Exists(_directory), "the data directory must not be created for invalid settings");
+    }
+
+    private static string Flatten(Exception exception)
+    {
+        var messages = new List<string>();
+        for (var current = exception; current is not null; current = current.InnerException!)
+        {
+            messages.Add(current.Message);
+            if (current.InnerException is null)
+            {
+                break;
+            }
+        }
+
+        return string.Join(" | ", messages);
     }
 }

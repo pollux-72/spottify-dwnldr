@@ -41,6 +41,19 @@ public sealed class DownloadRequestPersistenceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Database_path_with_a_semicolon_is_not_parsed_as_connection_string_syntax()
+    {
+        var folder = Path.Combine(_directory, "semi;colon");
+        Directory.CreateDirectory(folder);
+        var databasePath = Path.Combine(folder, "state.db");
+
+        await using var services = new ServiceCollection().AddSpottifyPersistence(databasePath).BuildServiceProvider();
+        await services.MigrateSpottifyDatabaseAsync();
+
+        Assert.True(File.Exists(databasePath));
+    }
+
+    [Fact]
     public async Task Request_survives_a_roundtrip_with_all_fields()
     {
         var id = Guid.NewGuid();

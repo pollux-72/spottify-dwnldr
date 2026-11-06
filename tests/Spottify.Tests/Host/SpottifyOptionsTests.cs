@@ -42,6 +42,21 @@ public sealed class SpottifyOptionsTests
         Assert.NotEmpty(Validate(options));
     }
 
+    [Theory]
+    [InlineData("../spottify.db")]
+    [InlineData("sub/spottify.db")]
+    [InlineData("/etc/spottify.db")]
+    [InlineData("..")]
+    [InlineData(".")]
+    public void Database_file_name_must_not_leave_the_data_directory(string fileName)
+    {
+        var options = new SpottifyOptions { DatabaseFileName = fileName };
+
+        var errors = Validate(options);
+
+        Assert.Contains(errors, e => e.MemberNames.Contains(nameof(SpottifyOptions.DatabaseFileName)));
+    }
+
     private static List<ValidationResult> Validate(SpottifyOptions options)
     {
         var results = new List<ValidationResult>();
