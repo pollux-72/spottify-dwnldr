@@ -1,0 +1,439 @@
+{
+ "release-count": 23,
+ "releases": [
+  {
+   "id": "098060d4-ba3c-469d-88b0-08642261c7ab",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-03-12",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "30e45d86-707d-4042-9df5-93724557aadb",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "44e85a85-77d7-3e2e-8416-65a27d2aef68",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-03-12",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "488477d8-10b4-47fe-a482-549f011406a5",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2021",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "5125fa48-f5dc-4fe4-9e4e-8c0cb719ce03",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2023",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 7
+    },
+    {
+     "position": 2,
+     "track-count": 7
+    }
+   ]
+  },
+  {
+   "id": "51467269-3122-3d7e-92b2-0f0a694d30c1",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-03-10",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "5654ace8-fd02-4471-a14c-bd6781cf2277",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "5ad66522-edce-3a77-b5fa-7956ee879239",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-03-13",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "69b198ff-fbaa-492a-bd2e-55f7aef7c29e",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2002",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "6b6628a6-59a2-4284-86fc-8f2d24cb7b7e",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "6cd30d99-4923-4d5e-8e51-9d87506976f1",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2005-01-24",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "74ccb54a-1b24-41a6-a25f-a877e0774fc9",
+   "title": "ディスカバリ / Discovery",
+   "status": "Official",
+   "date": "2014-01-29",
+   "artist-credit": [
+    {
+     "name": "ダフト・パンク",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "8343b377-ea18-4d64-b5f6-ffaf55d8f55b",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2005",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "89643cd8-4664-4ea0-9cde-2564d26231a9",
+   "title": "ディスカバリー",
+   "status": "Official",
+   "date": "2024-12-13",
+   "artist-credit": [
+    {
+     "name": "ダフト・パンク",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 7
+    },
+    {
+     "position": 2,
+     "track-count": 7
+    }
+   ]
+  },
+  {
+   "id": "8d28a4da-8077-4cae-a0a1-2d16c4923775",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2024-10-08",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "a1be7f50-6fbb-4251-8de3-3bb54d168d7f",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2021",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "ab5ca495-8983-41b9-86b4-46a981d173be",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-03-10",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "ac7518c6-b630-4761-99c7-6a94cc35a594",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-10-03",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 7
+    },
+    {
+     "position": 2,
+     "track-count": 7
+    }
+   ]
+  },
+  {
+   "id": "b078d70c-d2eb-489a-a8f8-e322af35dedf",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2021-12-17",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 7
+    },
+    {
+     "position": 2,
+     "track-count": 7
+    }
+   ]
+  },
+  {
+   "id": "bd3bb36e-16c8-438f-850e-dfbf4d1478f0",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-02-26",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "c80cdcf0-0b8d-4c40-bbbb-54b286fd9a21",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2014",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "d073287b-d1bd-4f11-a933-a4386f8cf701",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2001-02-26",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 14
+    }
+   ]
+  },
+  {
+   "id": "fcbe492b-c203-48c6-b15e-ae60122404bd",
+   "title": "Discovery",
+   "status": "Official",
+   "date": "2022",
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "media": [
+    {
+     "position": 1,
+     "track-count": 7
+    },
+    {
+     "position": 2,
+     "track-count": 7
+    }
+   ]
+  }
+ ]
+}

@@ -1,11 +1,11 @@
 ---
 id: TASK-2
 title: Projektgerüst (.NET), Konfiguration, SQLite-State, Dockerfile
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-06T12:52:00Z'
-updated_date: '2026-11-06T14:01:00Z'
+updated_date: '2026-11-06T14:05:00Z'
 labels: []
 dependencies: []
 ordinal: 2000
@@ -46,3 +46,9 @@ CI auf PR #1 grün (beide Jobs): build-and-test und docker-image. Der Docker-Job
 
 Qodo-Review auf PR #1 (3 mittlere Befunde) behoben: Einstellungen werden vor jedem Dateizugriff validiert, DatabaseFileName darf kein Pfad sein, die SQLite-Verbindung wird mit SqliteConnectionStringBuilder gebaut (Semikolon im Pfad). 7 neue Tests, der Semikolon-Test schlägt auf dem alten Code nachweislich fehl.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Gerüst für den Core-Dienst in .NET 10: Solution mit Core, Infrastructure, Host und Tests, SQLite mit EF-Core-Migration, Konfiguration über SPOTTIFY_-Variablen mit Validierung vor dem ersten Dateizugriff, /healthz, Dockerfile und CI. Verifiziert: 16 Tests grün, CI grün inklusive Docker-Build und Container-Healthcheck, Qodo-Review ohne offene Befunde. PR #1 gemerged. Offen für Folgetasks: Schnittstellen sind bewusst minimal und werden in TASK-4/9/10/12 verfeinert.
+<!-- SECTION:FINAL_SUMMARY:END -->
