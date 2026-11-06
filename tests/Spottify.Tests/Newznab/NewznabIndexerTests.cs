@@ -138,6 +138,19 @@ public sealed class NewznabIndexerTests
     }
 
     [Fact]
+    public async Task A_connection_that_breaks_while_the_body_is_read_is_an_indexer_exception()
+    {
+        await using var harness = new IndexerHarness(
+            _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new BrokenConnectionContent() });
+
+        var failure = await Assert.ThrowsAsync<IndexerException>(
+            () => harness.Indexer.SearchAsync("A", "B", CancellationToken.None));
+
+        Assert.IsAssignableFrom<IOException>(failure.InnerException);
+        AssertNoKey(failure);
+    }
+
+    [Fact]
     public async Task A_slow_indexer_is_an_indexer_exception()
     {
         var options = Options();

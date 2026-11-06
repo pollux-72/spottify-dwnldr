@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-06T13:03:00Z'
-updated_date: '2026-11-06T15:45:00Z'
+updated_date: '2026-11-06T15:49:00Z'
 labels: []
 dependencies:
   - TASK-2
@@ -40,4 +40,6 @@ Der Core übergibt den gewählten NZB an SABnzbd und muss den Fortschritt und da
 
 <!-- SECTION:NOTES:BEGIN -->
 Gebaut gegen die SABnzbd-API-Dokumentation, NICHT gegen ein laufendes SABnzbd (keins zur Hand, die JSON-Antworten sind von Hand nach der Doku geschrieben, so gekennzeichnet in Harness und README). Der manuelle Test ist der Live-Test SabnzbdLiveTests: er startet keinen Download, sondern fragt nach einem nicht existierenden Job und prüft damit Adresse, Key und API-Pfad. Verifiziert: 253 Tests grün, 3 Live-Tests übersprungen. AC 3 (Fehler mit Meldung im Auftrag speichern) ist der Teil des Workflows in TASK-13: der Client liefert DownloaderException mit Meldung ohne Key, gespeichert wird sie dort. Entscheidungen: Status aus Queue und History, bei Nichtfund zwei Durchgänge wegen des Wechsels zwischen beiden Listen, unbekannter Job wird als Failed gemeldet statt geworfen, Pfadzuordnung RemotePath/LocalPath, gemeinsame Hilfen LocalAddress und LimitedBody mit dem Indexer-Client geteilt. Offen: bei TASK-7 prüfen, dass SABnzbd und Core denselben Pfad mounten.
+
+Qodo-Review PR #4 (4 mittlere Befunde), alle behoben: 1) fertige Jobs nutzen nur noch storage, nie path (Arbeitsordner) als Ergebnisordner, 2) HTTP 401/403 zählt immer als abgelehnter Key, unabhängig vom JSON-Fehlertext, 3) Queue- oder History-Antworten mit unerwarteter Form sind ein Fehler statt eines 'unbekannten Jobs', 4) IOException beim Lesen des Bodys wird zur DownloaderException. Punkt 4 betraf auch den bereits gemergten Indexer-Client und ist dort gleich behoben. Tests: 270 grün, 3 Live-Tests übersprungen.
 <!-- SECTION:NOTES:END -->

@@ -173,6 +173,20 @@ public sealed class SabnzbdDownloaderTests
     }
 
     [Fact]
+    public async Task The_working_folder_path_is_never_used_as_the_finished_folder()
+    {
+        // "path" is where SABnzbd works on the job; only "storage" holds the finished files.
+        const string history = """{"history":{"slots":[{"nzo_id":"SABnzbd_nzo_kyt1f0","status":"Completed","path":"/downloads/incomplete/X"}]}}""";
+        await using var harness = new SabnzbdHarness(ByMode(mode => mode == "queue" ? EmptyQueue : history));
+
+        var status = await harness.Downloader.GetStatusAsync(JobId, CancellationToken.None);
+
+        Assert.Equal(DownloadJobState.Failed, status.State);
+        Assert.Null(status.OutputPath);
+        Assert.Contains("no folder", status.Error, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task A_failed_job_carries_the_reason_of_sabnzbd()
     {
         await using var harness = new SabnzbdHarness(ByMode(mode =>
@@ -326,6 +340,66 @@ public sealed class SabnzbdDownloaderTests
             () => harness.Downloader.SubmitAsync(Nzb, "x", CancellationToken.None));
 
         Assert.Equal(expected, failure.GetType());
+        AssertNoKeys(failure);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Unauthorized, """{"status":false,"error":"Forbidden"}""")]
+    [InlineData(HttpStatusCode.Forbidden, """{"status":false,"error":"Not allowed"}""")]
+    [InlineData(HttpStatusCode.Forbidden, """{"error":"Something completely different"}""")]
+    [InlineData(HttpStatusCode.Forbidden, "")]
+    public async Task The_http_status_decides_that_a_key_was_refused_whatever_the_error_text_says(HttpStatusCode status, string body)
+    {
+        await using var harness = new SabnzbdHarness(_ => Json(body, status));
+
+        var failure = await Assert.ThrowsAsync<DownloaderAuthenticationException>(
+            () => harness.Downloader.SubmitAsync(Nzb, "x", CancellationToken.None));
+
+        AssertNoKeys(failure);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("""{"queue":null}""")]
+    [InlineData("""{"queue":{}}""")]
+    [InlineData("""{"queue":{"slots":"none"}}""")]
+    [InlineData("""{"queue":[]}""")]
+    [InlineData("""{"history":{"slots":[]}}""")] // the wrong list for this call
+    public async Task A_queue_answer_with_an_unexpected_shape_is_an_error_not_an_unknown_job(string queueAnswer)
+    {
+        await using var harness = new SabnzbdHarness(ByMode(mode => mode == "queue" ? queueAnswer : EmptyHistory));
+
+        var failure = await Assert.ThrowsAsync<DownloaderException>(
+            () => harness.Downloader.GetStatusAsync(JobId, CancellationToken.None));
+
+        Assert.Contains("unexpected answer", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("""{"history":null}""")]
+    [InlineData("""{"history":{"noofslots":0}}""")]
+    [InlineData("""{"history":{"slots":{}}}""")]
+    public async Task A_history_answer_with_an_unexpected_shape_is_an_error_not_an_unknown_job(string historyAnswer)
+    {
+        await using var harness = new SabnzbdHarness(ByMode(mode => mode == "queue" ? EmptyQueue : historyAnswer));
+
+        var failure = await Assert.ThrowsAsync<DownloaderException>(
+            () => harness.Downloader.GetStatusAsync(JobId, CancellationToken.None));
+
+        Assert.Contains("unexpected answer", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_connection_that_breaks_while_the_body_is_read_is_a_downloader_exception()
+    {
+        await using var harness = new SabnzbdHarness(
+            _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new BrokenConnectionContent() });
+
+        var failure = await Assert.ThrowsAsync<DownloaderException>(
+            () => harness.Downloader.GetStatusAsync(JobId, CancellationToken.None));
+
+        Assert.IsAssignableFrom<IOException>(failure.InnerException);
         AssertNoKeys(failure);
     }
 

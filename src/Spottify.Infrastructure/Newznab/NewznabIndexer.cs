@@ -60,6 +60,11 @@ internal sealed class NewznabIndexer(HttpClient http, IOptions<NewznabOptions> o
             // message anyway and let callers read the inner exception if they need it.
             throw new IndexerException("The indexer could not be reached.", exception);
         }
+        catch (IOException exception)
+        {
+            // The connection broke while the body was being read.
+            throw new IndexerException("The connection to the indexer was interrupted.", exception);
+        }
         catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
             throw new IndexerException("The indexer did not answer in time.", exception);

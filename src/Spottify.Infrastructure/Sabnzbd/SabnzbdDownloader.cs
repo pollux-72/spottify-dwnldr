@@ -103,11 +103,9 @@ internal sealed partial class SabnzbdDownloader(HttpClient http, IOptions<Sabnzb
         switch (Text(slot, "status"))
         {
             case "Completed":
+                // "storage" is where the finished files are. "path" is the working folder of the job, which does not
+                // hold the result, so it is not used as a fallback.
                 var folder = Text(slot, "storage");
-                if (string.IsNullOrEmpty(folder))
-                {
-                    folder = Text(slot, "path");
-                }
 
                 return string.IsNullOrEmpty(folder)
                     ? new DownloadJobStatus(DownloadJobState.Failed, null, "SABnzbd reports the job as completed but gives no folder.")
@@ -126,19 +124,25 @@ internal sealed partial class SabnzbdDownloader(HttpClient http, IOptions<Sabnzb
         }
     }
 
+    /// <summary>
+    /// The slot of the job, or <c>null</c> when the list is valid and the job is not in it. An answer that does not
+    /// have the expected shape is an error: treating it as "empty" would make a faulty answer look like a removed job.
+    /// </summary>
     private static JsonElement? FindSlot(JsonDocument answer, string listName, string jobId)
     {
-        if (answer.RootElement.TryGetProperty(listName, out var list)
-            && list.ValueKind == JsonValueKind.Object
-            && list.TryGetProperty("slots", out var slots)
-            && slots.ValueKind == JsonValueKind.Array)
+        if (!answer.RootElement.TryGetProperty(listName, out var list)
+            || list.ValueKind != JsonValueKind.Object
+            || !list.TryGetProperty("slots", out var slots)
+            || slots.ValueKind != JsonValueKind.Array)
         {
-            foreach (var slot in slots.EnumerateArray())
+            throw new DownloaderException($"SABnzbd sent an unexpected answer for the {listName}.");
+        }
+
+        foreach (var slot in slots.EnumerateArray())
+        {
+            if (slot.ValueKind == JsonValueKind.Object && Text(slot, "nzo_id") == jobId)
             {
-                if (slot.ValueKind == JsonValueKind.Object && Text(slot, "nzo_id") == jobId)
-                {
-                    return slot;
-                }
+                return slot;
             }
         }
 
@@ -194,16 +198,19 @@ internal sealed partial class SabnzbdDownloader(HttpClient http, IOptions<Sabnzb
 
             try
             {
-                // SABnzbd reports a wrong key as {"status": false, "error": "API Key Incorrect"}, sometimes with HTTP 403.
-                if (document is not null && document.RootElement.ValueKind == JsonValueKind.Object
-                    && document.RootElement.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.String)
-                {
-                    throw ErrorFor(error.GetString() ?? string.Empty);
-                }
+                // A refused key can come as HTTP 401/403 with or without an error text, or as
+                // {"status": false, "error": "API Key Incorrect"} with HTTP 200. The status counts first.
+                var errorText = ErrorText(document);
 
                 if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
                 {
-                    throw new DownloaderAuthenticationException($"SABnzbd refused the API key (HTTP {(int)response.StatusCode}).");
+                    throw new DownloaderAuthenticationException(
+                        $"SABnzbd refused the API key (HTTP {(int)response.StatusCode})" + (errorText is null ? "." : $": {errorText}"));
+                }
+
+                if (errorText is not null)
+                {
+                    throw ErrorFor(errorText);
                 }
 
                 if (!response.IsSuccessStatusCode)
@@ -226,11 +233,23 @@ internal sealed partial class SabnzbdDownloader(HttpClient http, IOptions<Sabnzb
             // Keep the HTTP stack's text out of the message and let callers read the inner exception if needed.
             throw new DownloaderException("SABnzbd could not be reached.", exception);
         }
+        catch (IOException exception)
+        {
+            // The connection broke while the body was being read.
+            throw new DownloaderException("The connection to SABnzbd was interrupted.", exception);
+        }
         catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
             throw new DownloaderException("SABnzbd did not answer in time.", exception);
         }
     }
+
+    private static string? ErrorText(JsonDocument? document) =>
+        document is { RootElement.ValueKind: JsonValueKind.Object }
+        && document.RootElement.TryGetProperty("error", out var error)
+        && error.ValueKind == JsonValueKind.String
+            ? error.GetString()
+            : null;
 
     private static JsonDocument? TryParse(Stream body)
     {
