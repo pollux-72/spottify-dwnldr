@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text;
 using Microsoft.Extensions.Options;
@@ -27,10 +28,15 @@ internal sealed class NewznabIndexer(HttpClient http, IOptions<NewznabOptions> o
             + $"&limit={settings.Limit}"
             + $"&apikey={Uri.EscapeDataString(settings.ApiKey)}";
 
+        // One timeout for the whole exchange, headers and body. The HttpClient has none of its own because with
+        // streaming reads its timeout would end as soon as the headers arrive.
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(settings.RequestTimeout);
+
         try
         {
-            using var response = await http.GetAsync(url, cancellationToken).ConfigureAwait(false);
-            await using var body = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
+            await using var body = await ReadLimitedAsync(response, settings.MaxResponseBytes, timeout.Token).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -57,6 +63,40 @@ internal sealed class NewznabIndexer(HttpClient http, IOptions<NewznabOptions> o
             throw new IndexerException("The indexer did not answer in time.", exception);
         }
     }
+
+    /// <summary>
+    /// Reads the body into memory but refuses to go beyond <paramref name="maxBytes"/>. A plain <c>GetAsync</c> would
+    /// buffer whatever the server sends before any limit could apply.
+    /// </summary>
+    private static async Task<MemoryStream> ReadLimitedAsync(HttpResponseMessage response, long maxBytes, CancellationToken cancellationToken)
+    {
+        if (response.Content.Headers.ContentLength is { } announced && announced > maxBytes)
+        {
+            throw TooLarge(maxBytes);
+        }
+
+        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+        var buffer = new MemoryStream();
+        var chunk = new byte[81_920];
+        int read;
+        while ((read = await source.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
+        {
+            if (buffer.Length + read > maxBytes)
+            {
+                await buffer.DisposeAsync().ConfigureAwait(false);
+                throw TooLarge(maxBytes);
+            }
+
+            buffer.Write(chunk, 0, read);
+        }
+
+        buffer.Position = 0;
+        return buffer;
+    }
+
+    private static IndexerException TooLarge(long maxBytes) =>
+        new(string.Create(CultureInfo.InvariantCulture, $"The indexer answer is larger than the allowed {maxBytes} bytes."));
 }
 
 /// <summary>Builds the search text. Indexers match words, so punctuation only gets in the way.</summary>

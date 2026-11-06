@@ -182,6 +182,131 @@ public sealed class NewznabIndexerTests
         Assert.DoesNotContain(log.Messages, m => m.Contains(ApiKey, StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(HttpStatusCode.Unauthorized, typeof(IndexerAuthenticationException))]
+    [InlineData(HttpStatusCode.Forbidden, typeof(IndexerAuthenticationException))]
+    [InlineData(HttpStatusCode.TooManyRequests, typeof(IndexerLimitReachedException))]
+    public async Task A_garbled_body_on_a_failing_status_still_gives_the_exception_for_that_status(HttpStatusCode status, Type expected)
+    {
+        await using var harness = new IndexerHarness(_ => Xml("<html><body>Forbidden <br></body>", status));
+
+        var failure = await Assert.ThrowsAnyAsync<IndexerException>(
+            () => harness.Indexer.SearchAsync("A", "B", CancellationToken.None));
+
+        Assert.Equal(expected, failure.GetType());
+    }
+
+    [Fact]
+    public async Task An_answer_that_announces_more_than_the_limit_is_refused_without_reading_it()
+    {
+        var options = Options();
+        options.MaxResponseBytes = 1024;
+        await using var harness = new IndexerHarness(_ => Xml(new string('x', 5_000)), options);
+
+        var failure = await Assert.ThrowsAsync<IndexerException>(
+            () => harness.Indexer.SearchAsync("A", "B", CancellationToken.None));
+
+        Assert.Contains("larger than the allowed 1024 bytes", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task An_answer_of_unknown_length_is_cut_off_at_the_limit()
+    {
+        var options = Options();
+        options.MaxResponseBytes = 1024;
+        var content = new GeneratedContent(bytes: 10_000_000);
+        await using var harness = new IndexerHarness(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = content }, options);
+
+        var failure = await Assert.ThrowsAsync<IndexerException>(
+            () => harness.Indexer.SearchAsync("A", "B", CancellationToken.None));
+
+        Assert.Contains("larger than the allowed", failure.Message, StringComparison.Ordinal);
+        Assert.True(content.BytesWritten < 1_000_000, "the client must stop reading early, not consume everything");
+    }
+
+    [Fact]
+    public async Task A_body_that_stalls_after_the_headers_times_out()
+    {
+        var options = Options();
+        options.RequestTimeout = TimeSpan.FromSeconds(1);
+        await using var harness = new IndexerHarness(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new GeneratedContent(bytes: -1) }, options);
+
+        var failure = await Assert.ThrowsAsync<IndexerException>(
+            () => harness.Indexer.SearchAsync("A", "B", CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(15)));
+
+        Assert.Contains("did not answer in time", failure.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A body without a known length that is produced while it is read, like a real network response. With
+    /// <c>bytes &lt; 0</c> it never delivers anything (a stalled server).
+    /// </summary>
+    private sealed class GeneratedContent(int bytes) : HttpContent
+    {
+        private readonly GeneratingStream _stream = new(bytes);
+
+        public int BytesWritten => _stream.Produced;
+
+        protected override Task<Stream> CreateContentReadStreamAsync() => Task.FromResult<Stream>(_stream);
+
+        protected override Task<Stream> CreateContentReadStreamAsync(CancellationToken cancellationToken) =>
+            Task.FromResult<Stream>(_stream);
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
+            throw new NotSupportedException("The test reads the body as a stream.");
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = -1;
+            return false;
+        }
+
+        private sealed class GeneratingStream(int total) : Stream
+        {
+            public int Produced { get; private set; }
+
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                if (total < 0)
+                {
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+
+                var count = Math.Min(buffer.Length, total - Produced);
+                buffer.Span[..count].Fill((byte)'x');
+                Produced += count;
+                return count;
+            }
+
+            public override int Read(byte[] buffer, int offset, int count) =>
+                ReadAsync(buffer.AsMemory(offset, count)).AsTask().GetAwaiter().GetResult();
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+            public override void SetLength(long value) => throw new NotSupportedException();
+
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        }
+    }
+
     private static void AssertNoKey(Exception exception) =>
         Assert.DoesNotContain(ApiKey, exception.Message, StringComparison.Ordinal);
 

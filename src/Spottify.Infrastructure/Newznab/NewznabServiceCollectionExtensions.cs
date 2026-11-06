@@ -20,7 +20,8 @@ public static class NewznabServiceCollectionExtensions
             .AddHttpClient<IIndexer, NewznabIndexer>(client =>
             {
                 client.BaseAddress = options.BaseAddress;
-                client.Timeout = options.RequestTimeout;
+                // The indexer client enforces the timeout itself, for headers and body together.
+                client.Timeout = Timeout.InfiniteTimeSpan;
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("SpottifyDwnldr/0.1");
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/xml, text/xml, application/rss+xml");
             })

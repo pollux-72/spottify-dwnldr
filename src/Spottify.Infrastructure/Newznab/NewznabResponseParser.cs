@@ -44,8 +44,10 @@ internal static class NewznabResponseParser
             var root = Load(xml).Root;
             return root is { Name.LocalName: "error" } ? ErrorFor(root) : null;
         }
-        catch (XmlException)
+        catch (IndexerException)
         {
+            // Load reports unreadable XML as an IndexerException. For an error answer that is no news: the caller
+            // falls back to the HTTP status, which says more than "the body was not XML".
             return null;
         }
     }

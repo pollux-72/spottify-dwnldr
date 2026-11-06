@@ -45,7 +45,8 @@ Nested keys use a double underscore.
 | `SPOTTIFY_Spottify__MusicBrainz__MaxRetryDelay` | `00:00:30` | Cap for the pause before a retry, even if the server asks for longer |
 | `SPOTTIFY_Spottify__MusicBrainz__BaseUrl` | `https://musicbrainz.org/ws/2/` | Absolute http(s) address; a missing trailing slash is added |
 | `SPOTTIFY_Spottify__MusicBrainz__MaxCandidates` | `8` | Albums returned per search |
-| `SPOTTIFY_Spottify__Indexer__BaseUrl` | none | Address of your Newznab indexer, e.g. `https://indexer.example/`. Setting any `Indexer` value switches the indexer on |
+| `SPOTTIFY_Spottify__Indexer__BaseUrl` | none | Address of your Newznab indexer, e.g. `https://indexer.example/`. Setting any `Indexer` value switches the indexer on. Plain `http` is only accepted for local addresses (localhost, 10.x, 172.16-31.x, 192.168.x, single-word host names, `.local`, `.lan`), because the API key is part of every request |
+| `SPOTTIFY_Spottify__Indexer__MaxResponseBytes` | `20000000` | Largest answer that is read; bigger answers are refused |
 | `SPOTTIFY_Spottify__Indexer__ApiKey` | none | **Secret.** API key of your indexer account |
 | `SPOTTIFY_Spottify__Indexer__Categories` | `3000` | Newznab categories to search; 3000 is all audio, `3010,3040` is MP3 and lossless |
 | `SPOTTIFY_Spottify__Indexer__Limit` | `50` | Releases per search |

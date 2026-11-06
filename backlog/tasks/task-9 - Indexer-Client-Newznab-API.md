@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-06T13:03:00Z'
-updated_date: '2026-11-06T15:03:00Z'
+updated_date: '2026-11-06T15:37:00Z'
 labels: []
 dependencies:
   - TASK-2
@@ -39,4 +39,6 @@ Der Core muss auf dem Indexer des Nutzers nach Album-Releases suchen. Fast alle 
 
 <!-- SECTION:NOTES:BEGIN -->
 Gebaut gegen die Newznab-Spezifikation, NICHT gegen einen echten Indexer: Es stand kein Indexer-Zugang zur Verfügung, die XML-Fixtures sind von Hand nach der Spezifikation geschrieben und im Fixture-Kommentar und im README als solche gekennzeichnet. AC 3 verlangt einen dokumentierten manuellen Test: README-Abschnitt 'Usenet search' und der Live-Test NewznabLiveTests (nur mit SPOTTIFY_LIVE_TESTS=1 und konfiguriertem Indexer). Bitte nach TASK-15 einmal gegen den echten Indexer laufen lassen. Verifiziert: 143 Tests grün, 2 Live-Tests übersprungen. Designentscheidungen: XML statt JSON (überall unterstützt), DTD verboten, t=search mit bereinigtem Suchtext statt t=music, API-Key nie in Meldungen oder Logs (Test), kein eigener Retry (Limits des Indexers sollen nicht ausgereizt werden, der Workflow entscheidet). Offen: Indexer mit abweichendem API-Pfad oder ohne t=search.
+
+Qodo-Review PR #3 (3 mittlere Befunde), alle behoben: 1) kaputtes XML bei 401/403/429 ergab die generische statt der statusspezifischen Exception, 2) die Antwort wurde vor jeder Größenprüfung komplett gepuffert (jetzt ResponseHeadersRead, Prüfung von Content-Length und hartes Limit beim Lesen, MaxResponseBytes, Timeout für Header und Body gemeinsam), 3) Key über Klartext-HTTP (http nur noch für lokale Adressen erlaubt, Prowlarr oder NZBHydra im Heimnetz funktionieren weiter). Tests: 171 grün, 2 Live-Tests übersprungen.
 <!-- SECTION:NOTES:END -->

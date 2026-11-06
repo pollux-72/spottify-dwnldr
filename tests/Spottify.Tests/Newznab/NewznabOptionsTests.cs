@@ -39,6 +39,47 @@ public sealed class NewznabOptionsTests
     }
 
     [Theory]
+    [InlineData("https://indexer.example/")]
+    [InlineData("https://8.8.8.8/")]
+    [InlineData("http://localhost:5076/")]
+    [InlineData("http://127.0.0.1:9696")]
+    [InlineData("http://[::1]:9696/")]
+    [InlineData("http://192.168.1.20:5076/")]
+    [InlineData("http://10.0.0.2/")]
+    [InlineData("http://172.16.0.5/")]
+    [InlineData("http://172.31.255.1/")]
+    [InlineData("http://prowlarr:9696/")]
+    [InlineData("http://nas.local/")]
+    [InlineData("http://hydra.lan:5076/")]
+    public void The_key_may_travel_over_https_or_inside_the_local_network(string url)
+    {
+        var options = Valid();
+        options.BaseUrl = url;
+
+        Assert.Empty(Validate(options));
+    }
+
+    [Theory]
+    [InlineData("http://indexer.example/")]
+    [InlineData("http://8.8.8.8/")]
+    [InlineData("http://172.32.0.1/")]
+    [InlineData("http://172.15.0.1/")]
+    [InlineData("http://11.0.0.1/")]
+    [InlineData("http://192.169.0.1/")]
+    [InlineData("http://localhost.example.com/")]
+    [InlineData("http://evil.example/localhost")]
+    public void Plain_http_to_a_public_address_is_refused_because_the_key_would_be_readable(string url)
+    {
+        var options = Valid();
+        options.BaseUrl = url;
+
+        var errors = Validate(options);
+
+        var error = Assert.Single(errors);
+        Assert.Contains("unencrypted", error.ErrorMessage, StringComparison.Ordinal);
+    }
+
+    [Theory]
     [InlineData("3000")]
     [InlineData("3010,3040")]
     public void Valid_categories_are_accepted(string categories)
