@@ -1,0 +1,82 @@
+{
+ "id": "30e45d86-707d-4042-9df5-93724557aadb",
+ "title": "Discovery",
+ "status": "Official",
+ "date": "2001",
+ "artist-credit": [
+  {
+   "name": "Daft Punk",
+   "joinphrase": ""
+  }
+ ],
+ "release-group": {
+  "id": "48117b90-a16e-34ca-a514-19c702df1158",
+  "title": "Discovery",
+  "primary-type": "Album",
+  "secondary-types": []
+ },
+ "media": [
+  {
+   "position": 1,
+   "track-count": 14,
+   "tracks": [
+    {
+     "position": 1,
+     "title": "One More Time"
+    },
+    {
+     "position": 2,
+     "title": "Aerodynamic"
+    },
+    {
+     "position": 3,
+     "title": "Digital Love"
+    },
+    {
+     "position": 4,
+     "title": "Harder, Better, Faster, Stronger"
+    },
+    {
+     "position": 5,
+     "title": "Crescendolls"
+    },
+    {
+     "position": 6,
+     "title": "Nightvision"
+    },
+    {
+     "position": 7,
+     "title": "Superheroes"
+    },
+    {
+     "position": 8,
+     "title": "High Life"
+    },
+    {
+     "position": 9,
+     "title": "Something About Us"
+    },
+    {
+     "position": 10,
+     "title": "Voyager"
+    },
+    {
+     "position": 11,
+     "title": "Veridis Quo"
+    },
+    {
+     "position": 12,
+     "title": "Short Circuit"
+    },
+    {
+     "position": 13,
+     "title": "Face to Face"
+    },
+    {
+     "position": 14,
+     "title": "Too Long"
+    }
+   ]
+  }
+ ]
+}

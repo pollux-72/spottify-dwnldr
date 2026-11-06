@@ -1,0 +1,399 @@
+{
+ "count": 153,
+ "recordings": [
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "6b94230e-938a-4e4d-9e4e-c0d9d00365c8",
+     "title": "Glowsticks of Steel",
+     "status": "Official",
+     "date": "",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "d7279ca3-d632-3560-a16b-f74d307373f7",
+      "title": "Glowsticks of Steel",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation",
+       "DJ-mix"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "d8ee7094-4f4e-438f-858d-aca31d3b2946",
+     "title": "NRJ Energy Music Awards 2002",
+     "status": "Official",
+     "date": "2002-01-28",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "01878193-8de3-44b0-ad44-c191b6bcf4f4",
+      "title": "NRJ Energy Music Awards 2002",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    },
+    {
+     "id": "c9afe67b-08a6-401e-bc52-b9f056a12aef",
+     "title": "Now!6",
+     "status": "Official",
+     "date": "2001",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "18ab4fe4-8b66-4f4e-b7e1-180b95f383a3",
+      "title": "Now!6",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "cc581792-379b-46a4-9a47-e899214ddfcf",
+     "title": "Best of Club Hits, Volume 1",
+     "status": "Official",
+     "date": "2002-10-15",
+     "artist-credit": [
+      {
+       "name": "DJ Geoffe",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "5bf1304a-3de9-37b2-901a-7e43e270cfa0",
+      "title": "Best of Club Hits, Volume 1",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation",
+       "DJ-mix"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "fa2fb470-cf05-4c57-840b-4f6a65190392",
+     "title": "Musique, Volume 1: 1993–2005",
+     "status": "Official",
+     "date": "2006-03-06",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "66ecf2c3-441f-3981-b85f-a005d9cc582d",
+      "title": "Musique, Volume 1: 1993–2005",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    },
+    {
+     "id": "61257a51-ebff-47dd-8dbc-c23b0ab77f10",
+     "title": "Musique, Volume 1: 1993–2005",
+     "status": "Official",
+     "date": "2006-04-03",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "66ecf2c3-441f-3981-b85f-a005d9cc582d",
+      "title": "Musique, Volume 1: 1993–2005",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "da0814b8-462c-44e4-8698-f96db32c7eab",
+     "title": "100X Liefde 2013",
+     "status": "Official",
+     "date": "2013",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "9923ca0a-7147-4903-b3cc-748dc5f1703e",
+      "title": "100X Liefde 2013",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    },
+    {
+     "id": "c4aa6673-71e3-4602-ae43-8bb776d7f261",
+     "title": "100X Liefde 2013",
+     "status": "Official",
+     "date": "2013",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "9923ca0a-7147-4903-b3cc-748dc5f1703e",
+      "title": "100X Liefde 2013",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "eb7ffa28-1d80-4a73-be77-fad856b0a813",
+     "title": "NRJ Story",
+     "status": "Official",
+     "date": "2007",
+     "artist-credit": [
+      {
+       "name": "Various Artists",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "fab00def-0230-42f4-b0f7-a03e103b59b2",
+      "title": "NRJ Story",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "One More Time",
+   "score": 100,
+   "artist-credit": [
+    {
+     "name": "Daft Punk",
+     "joinphrase": ""
+    }
+   ],
+   "releases": [
+    {
+     "id": "ea225cf1-0254-481d-86cc-b4e2274a3af1",
+     "title": "Discovery / Human After All",
+     "status": "Official",
+     "date": "2011",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "2dda747c-d6b3-44e6-a1ce-d1dcc15055ff",
+      "title": "Discovery / Human After All",
+      "primary-type": "Album",
+      "secondary-types": [
+       "Compilation"
+      ]
+     }
+    },
+    {
+     "id": "8d28a4da-8077-4cae-a0a1-2d16c4923775",
+     "title": "Discovery",
+     "status": "Official",
+     "date": "2024-10-08",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "48117b90-a16e-34ca-a514-19c702df1158",
+      "title": "Discovery",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    },
+    {
+     "id": "6cd30d99-4923-4d5e-8e51-9d87506976f1",
+     "title": "Discovery",
+     "status": "Official",
+     "date": "2005-01-24",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "48117b90-a16e-34ca-a514-19c702df1158",
+      "title": "Discovery",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    },
+    {
+     "id": "7c3157ba-4f6f-4162-a6ec-93842c143877",
+     "title": "Discovery (Beta Version)",
+     "status": "Bootleg",
+     "date": "2001",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "84216190-e46f-4cf1-8a28-76910183be38",
+      "title": "Discovery (Beta Version)",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    },
+    {
+     "id": "69b198ff-fbaa-492a-bd2e-55f7aef7c29e",
+     "title": "Discovery",
+     "status": "Official",
+     "date": "2002",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "48117b90-a16e-34ca-a514-19c702df1158",
+      "title": "Discovery",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    },
+    {
+     "id": "fcbe492b-c203-48c6-b15e-ae60122404bd",
+     "title": "Discovery",
+     "status": "Official",
+     "date": "2022",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "48117b90-a16e-34ca-a514-19c702df1158",
+      "title": "Discovery",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    },
+    {
+     "id": "5125fa48-f5dc-4fe4-9e4e-8c0cb719ce03",
+     "title": "Discovery",
+     "status": "Official",
+     "date": "2023",
+     "artist-credit": [
+      {
+       "name": "Daft Punk",
+       "joinphrase": ""
+      }
+     ],
+     "release-group": {
+      "id": "48117b90-a16e-34ca-a514-19c702df1158",
+      "title": "Discovery",
+      "primary-type": "Album",
+      "secondary-types": []
+     }
+    }
+   ]
+  }
+ ]
+}

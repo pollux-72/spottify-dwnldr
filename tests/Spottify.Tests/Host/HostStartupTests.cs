@@ -13,6 +13,7 @@ public sealed class HostStartupTests : IDisposable
 {
     private const string Variable = "SPOTTIFY_Spottify__DataDirectory";
     private const string FileNameVariable = "SPOTTIFY_Spottify__DatabaseFileName";
+    private const string MusicBrainzUrlVariable = "SPOTTIFY_Spottify__MusicBrainz__BaseUrl";
 
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "spottify-host-" + Guid.NewGuid().ToString("N"));
 
@@ -22,6 +23,7 @@ public sealed class HostStartupTests : IDisposable
     {
         Environment.SetEnvironmentVariable(Variable, null);
         Environment.SetEnvironmentVariable(FileNameVariable, null);
+        Environment.SetEnvironmentVariable(MusicBrainzUrlVariable, null);
         SqliteConnection.ClearAllPools();
         if (Directory.Exists(_directory))
         {
@@ -53,6 +55,28 @@ public sealed class HostStartupTests : IDisposable
         Assert.NotNull(failure);
         Assert.Contains("DatabaseFileName", Flatten(failure), StringComparison.Ordinal);
         Assert.False(Directory.Exists(_directory), "the data directory must not be created for invalid settings");
+    }
+
+    [Fact]
+    public async Task The_host_provides_the_musicbrainz_metadata_provider()
+    {
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+
+        Assert.NotNull(factory.Services.GetService(typeof(Spottify.Core.Abstractions.IMetadataProvider)));
+    }
+
+    [Fact]
+    public async Task An_invalid_musicbrainz_url_stops_the_host_at_startup()
+    {
+        Environment.SetEnvironmentVariable(MusicBrainzUrlVariable, "not a url");
+
+        await using var factory = new WebApplicationFactory<Program>();
+
+        var failure = Record.Exception(() => factory.CreateClient());
+
+        Assert.NotNull(failure);
+        Assert.Contains("BaseUrl", Flatten(failure), StringComparison.Ordinal);
     }
 
     private static string Flatten(Exception exception)
