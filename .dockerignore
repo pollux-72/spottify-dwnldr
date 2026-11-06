@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/.vs/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+.git/
+.github/
+backlog/
+tests/
+*.md

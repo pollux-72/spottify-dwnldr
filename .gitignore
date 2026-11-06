@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+
+# Local state and secrets must never be committed.
+*.db
+*.db-shm
+*.db-wal
+data/
+.env
+appsettings.*.local.json
