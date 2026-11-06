@@ -23,6 +23,8 @@
   <ItemGroup>
     <!-- Trimmed responses recorded from the live MusicBrainz API. -->
     <None Update="MusicBrainz\Fixtures\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Newznab answers written from the API specification. -->
+    <None Update="Newznab\Fixtures\*.xml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,3 +3,5 @@
 dotnet_diagnostic.CA1707.severity = none
 # xUnit's [CollectionDefinition] types are named after the collection.
 dotnet_diagnostic.CA1711.severity = none
+# Performance rule for logging in hot paths; irrelevant in tests.
+dotnet_diagnostic.CA1848.severity = none

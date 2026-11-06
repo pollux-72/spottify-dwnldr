@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hand written from the Newznab API specification (no indexer account was available to record a real answer).
+  Shapes follow what Newznab indexers send: RSS 2.0 with newznab:attr elements. Check against your own indexer
+  with the live test described in the README.
+-->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:newznab="http://www.newznab.com/DTD/2010/feeds/attributes/">
+  <channel>
+    <title>indexer.example</title>
+    <description>Example indexer</description>
+    <newznab:response offset="0" total="6"/>
+
+    <!-- Lossless release: size, sub category and date all present. -->
+    <item>
+      <title>Daft.Punk-Discovery-2001-FLAC</title>
+      <guid isPermaLink="true">https://indexer.example/details/aaa111</guid>
+      <link>https://indexer.example/getnzb/aaa111.nzb&amp;i=7&amp;r=SECRETKEY123</link>
+      <comments>https://indexer.example/details/aaa111#comments</comments>
+      <pubDate>Fri, 06 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Audio &gt; Lossless</category>
+      <description>Daft.Punk-Discovery-2001-FLAC</description>
+      <enclosure url="https://indexer.example/getnzb/aaa111.nzb&amp;i=7&amp;r=SECRETKEY123" length="312345678" type="application/x-nzb"/>
+      <newznab:attr name="category" value="3000"/>
+      <newznab:attr name="category" value="3040"/>
+      <newznab:attr name="size" value="312345678"/>
+      <newznab:attr name="files" value="45"/>
+      <newznab:attr name="grabs" value="12"/>
+      <newznab:attr name="usenetdate" value="Thu, 05 Nov 2026 22:00:00 +0000"/>
+    </item>
+
+    <!-- MP3 release: no size attribute, so the size comes from the enclosure. -->
+    <item>
+      <title>Daft Punk - Discovery (2001) [MP3 320]</title>
+      <guid isPermaLink="true">https://indexer.example/details/bbb222</guid>
+      <link>https://indexer.example/getnzb/bbb222.nzb&amp;i=7&amp;r=SECRETKEY123</link>
+      <pubDate>Mon, 05 Nov 2018 09:30:00 +0100</pubDate>
+      <category>Audio &gt; MP3</category>
+      <enclosure url="https://indexer.example/getnzb/bbb222.nzb&amp;i=7&amp;r=SECRETKEY123" length="98765432" type="application/x-nzb"/>
+      <newznab:attr name="category" value="3000"/>
+      <newznab:attr name="category" value="3010"/>
+    </item>
+
+    <!-- No link element: the enclosure is used. Only the parent category is listed; the date is missing. -->
+    <item>
+      <title>Daft.Punk.Discovery.WEB.2021</title>
+      <enclosure url="https://indexer.example/getnzb/ccc333.nzb&amp;r=SECRETKEY123" length="250000000" type="application/x-nzb"/>
+      <newznab:attr name="category" value="3000"/>
+    </item>
+
+    <!-- Unusable: no title. -->
+    <item>
+      <link>https://indexer.example/getnzb/ddd444.nzb</link>
+      <newznab:attr name="size" value="1"/>
+    </item>
+
+    <!-- Unusable: not an http(s) link. -->
+    <item>
+      <title>Daft.Punk-Discovery-Broken</title>
+      <link>ftp://indexer.example/ddd555.nzb</link>
+    </item>
+
+    <!-- Category given only as text. -->
+    <item>
+      <title>Daft.Punk-Discovery-Remastered</title>
+      <link>https://indexer.example/getnzb/eee666.nzb</link>
+      <pubDate>Fri, 01 Jan 2021 00:00:00 +0000</pubDate>
+      <category>Audio</category>
+      <newznab:attr name="size" value="not-a-number"/>
+    </item>
+  </channel>
+</rss>

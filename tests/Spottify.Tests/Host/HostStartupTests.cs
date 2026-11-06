@@ -14,6 +14,8 @@ public sealed class HostStartupTests : IDisposable
     private const string Variable = "SPOTTIFY_Spottify__DataDirectory";
     private const string FileNameVariable = "SPOTTIFY_Spottify__DatabaseFileName";
     private const string MusicBrainzUrlVariable = "SPOTTIFY_Spottify__MusicBrainz__BaseUrl";
+    private const string IndexerUrlVariable = "SPOTTIFY_Spottify__Indexer__BaseUrl";
+    private const string IndexerKeyVariable = "SPOTTIFY_Spottify__Indexer__ApiKey";
 
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "spottify-host-" + Guid.NewGuid().ToString("N"));
 
@@ -24,6 +26,8 @@ public sealed class HostStartupTests : IDisposable
         Environment.SetEnvironmentVariable(Variable, null);
         Environment.SetEnvironmentVariable(FileNameVariable, null);
         Environment.SetEnvironmentVariable(MusicBrainzUrlVariable, null);
+        Environment.SetEnvironmentVariable(IndexerUrlVariable, null);
+        Environment.SetEnvironmentVariable(IndexerKeyVariable, null);
         SqliteConnection.ClearAllPools();
         if (Directory.Exists(_directory))
         {
@@ -77,6 +81,42 @@ public sealed class HostStartupTests : IDisposable
 
         Assert.NotNull(failure);
         Assert.Contains("BaseUrl", Flatten(failure), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Without_indexer_settings_the_host_runs_and_offers_no_indexer()
+    {
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+
+        Assert.Null(factory.Services.GetService(typeof(Spottify.Core.Abstractions.IIndexer)));
+    }
+
+    [Fact]
+    public async Task With_indexer_settings_the_host_provides_the_indexer()
+    {
+        Environment.SetEnvironmentVariable(IndexerUrlVariable, "https://indexer.example/");
+        Environment.SetEnvironmentVariable(IndexerKeyVariable, "not-a-real-key");
+
+        await using var factory = new WebApplicationFactory<Program>();
+        using var client = factory.CreateClient();
+
+        Assert.NotNull(factory.Services.GetService(typeof(Spottify.Core.Abstractions.IIndexer)));
+    }
+
+    [Fact]
+    public async Task A_half_configured_indexer_stops_the_host_at_startup_without_echoing_the_key()
+    {
+        Environment.SetEnvironmentVariable(IndexerKeyVariable, "not-a-real-key"); // address missing
+
+        await using var factory = new WebApplicationFactory<Program>();
+
+        var failure = Record.Exception(() => factory.CreateClient());
+
+        Assert.NotNull(failure);
+        var text = Flatten(failure);
+        Assert.Contains("BaseUrl", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("not-a-real-key", text, StringComparison.Ordinal);
     }
 
     private static string Flatten(Exception exception)
