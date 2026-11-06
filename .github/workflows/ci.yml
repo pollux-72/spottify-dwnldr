@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - run: dotnet build SpottifyDwnldr.slnx --configuration Release
+      - run: dotnet test SpottifyDwnldr.slnx --configuration Release --no-build
+
+  docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build --tag spottify-dwnldr:ci .
+
+      - name: Start container and check health endpoint
+        run: |
+          docker run --detach --name core --publish 8080:8080 --volume core-data:/data spottify-dwnldr:ci
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://localhost:8080/healthz; then exit 0; fi
+            sleep 1
+          done
+          docker logs core
+          exit 1

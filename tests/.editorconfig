@@ -1,0 +1,5 @@
+[*.cs]
+# Test names are sentences with underscores on purpose.
+dotnet_diagnostic.CA1707.severity = none
+# xUnit's [CollectionDefinition] types are named after the collection.
+dotnet_diagnostic.CA1711.severity = none

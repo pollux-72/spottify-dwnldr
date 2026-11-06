@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Spottify.Core/Spottify.Core.csproj" />
+    <Project Path="src/Spottify.Host/Spottify.Host.csproj" />
+    <Project Path="src/Spottify.Infrastructure/Spottify.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Spottify.Tests/Spottify.Tests.csproj" />
+  </Folder>
+</Solution>
