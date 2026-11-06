@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Sockets;
+using Spottify.Infrastructure.Http;
 
 namespace Spottify.Infrastructure.Newznab;
 
@@ -57,46 +56,12 @@ public sealed class NewznabOptions : IValidatableObject
             yield return new ValidationResult(
                 $"{nameof(BaseUrl)} must be an absolute http or https address.", [nameof(BaseUrl)]);
         }
-        else if (uri.Scheme == "http" && !IsLocalHost(uri))
+        else if (uri.Scheme == "http" && !LocalAddress.IsLocal(uri))
         {
             yield return new ValidationResult(
                 $"{nameof(BaseUrl)} uses http, so the API key would cross the network unencrypted. Use https. "
-                + "Plain http is only accepted for local addresses (localhost, 10.x, 172.16-31.x, 192.168.x, single-word host names, .local, .lan).",
+                + LocalAddress.Description,
                 [nameof(BaseUrl)]);
         }
-    }
-
-    // Addresses that stay inside the machine or the home network: an indexer proxy such as Prowlarr or NZBHydra
-    // next to this service is normally reached over plain http there.
-    private static bool IsLocalHost(Uri uri)
-    {
-        var host = uri.IdnHost;
-
-        if (IPAddress.TryParse(uri.Host.Trim('[', ']'), out var address))
-        {
-            return IPAddress.IsLoopback(address) || IsPrivate(address);
-        }
-
-        return host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
-            || !host.Contains('.', StringComparison.Ordinal) // "prowlarr", a Docker service or LAN name
-            || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase)
-            || host.EndsWith(".local", StringComparison.OrdinalIgnoreCase)
-            || host.EndsWith(".lan", StringComparison.OrdinalIgnoreCase)
-            || host.EndsWith(".internal", StringComparison.OrdinalIgnoreCase)
-            || host.EndsWith(".home.arpa", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsPrivate(IPAddress address)
-    {
-        if (address.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-            return address.IsIPv6LinkLocal || address.IsIPv6SiteLocal || address.IsIPv6UniqueLocal;
-        }
-
-        var bytes = address.GetAddressBytes();
-        return bytes[0] == 10
-            || (bytes[0] == 172 && bytes[1] is >= 16 and <= 31)
-            || (bytes[0] == 192 && bytes[1] == 168)
-            || (bytes[0] == 169 && bytes[1] == 254);
     }
 }

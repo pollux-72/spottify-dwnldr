@@ -4,6 +4,7 @@ using Spottify.Host;
 using Spottify.Infrastructure.MusicBrainz;
 using Spottify.Infrastructure.Newznab;
 using Spottify.Infrastructure.Persistence;
+using Spottify.Infrastructure.Sabnzbd;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,12 @@ builder.Services.AddMusicBrainz(musicBrainz);
 if (builder.Configuration.GetSection(NewznabOptions.SectionName).Exists())
 {
     builder.Services.AddNewznabIndexer(BindAndValidate<NewznabOptions>(builder.Configuration, NewznabOptions.SectionName));
+}
+
+// Same for SABnzbd: optional until it is set up, complete and valid once any Spottify:Sabnzbd value is set.
+if (builder.Configuration.GetSection(SabnzbdOptions.SectionName).Exists())
+{
+    builder.Services.AddSabnzbd(BindAndValidate<SabnzbdOptions>(builder.Configuration, SabnzbdOptions.SectionName));
 }
 
 builder.Services.AddHealthChecks().AddDbContextCheck<SpottifyDbContext>();
