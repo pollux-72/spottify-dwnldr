@@ -1,11 +1,11 @@
 ---
 id: TASK-9
 title: Indexer-Client (Newznab-API)
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-06T13:03:00Z'
-updated_date: '2026-11-06T15:37:00Z'
+updated_date: '2026-11-06T15:40:00Z'
 labels: []
 dependencies:
   - TASK-2
@@ -42,3 +42,9 @@ Gebaut gegen die Newznab-Spezifikation, NICHT gegen einen echten Indexer: Es sta
 
 Qodo-Review PR #3 (3 mittlere Befunde), alle behoben: 1) kaputtes XML bei 401/403/429 ergab die generische statt der statusspezifischen Exception, 2) die Antwort wurde vor jeder Größenprüfung komplett gepuffert (jetzt ResponseHeadersRead, Prüfung von Content-Length und hartes Limit beim Lesen, MaxResponseBytes, Timeout für Header und Body gemeinsam), 3) Key über Klartext-HTTP (http nur noch für lokale Adressen erlaubt, Prowlarr oder NZBHydra im Heimnetz funktionieren weiter). Tests: 171 grün, 2 Live-Tests übersprungen.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Newznab-Indexer-Client hinter IIndexer: t=search, XML-Parser (DTD verboten), Fehlerarten als Exceptions, API-Key nie in Meldungen oder Logs, Größen- und Zeitlimit, Klartext-http nur für lokale Adressen. Verifiziert mit 171 Tests und zwei Qodo-Runden. Einschränkung: nicht gegen einen echten Indexer getestet (Fixtures nach Spezifikation geschrieben), der manuelle Test ist im README beschrieben und nach TASK-15 einmal auszuführen. PR #3 gemergt.
+<!-- SECTION:FINAL_SUMMARY:END -->

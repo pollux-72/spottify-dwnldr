@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Spottify.Core.Abstractions;
+using Spottify.Infrastructure.Http;
 
 namespace Spottify.Infrastructure.Newznab;
 
@@ -36,7 +37,8 @@ internal sealed class NewznabIndexer(HttpClient http, IOptions<NewznabOptions> o
         try
         {
             using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
-            await using var body = await ReadLimitedAsync(response, settings.MaxResponseBytes, timeout.Token).ConfigureAwait(false);
+            await using var body = await LimitedBody.ReadAsync(
+                response, settings.MaxResponseBytes, () => TooLarge(settings.MaxResponseBytes), timeout.Token).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -62,37 +64,6 @@ internal sealed class NewznabIndexer(HttpClient http, IOptions<NewznabOptions> o
         {
             throw new IndexerException("The indexer did not answer in time.", exception);
         }
-    }
-
-    /// <summary>
-    /// Reads the body into memory but refuses to go beyond <paramref name="maxBytes"/>. A plain <c>GetAsync</c> would
-    /// buffer whatever the server sends before any limit could apply.
-    /// </summary>
-    private static async Task<MemoryStream> ReadLimitedAsync(HttpResponseMessage response, long maxBytes, CancellationToken cancellationToken)
-    {
-        if (response.Content.Headers.ContentLength is { } announced && announced > maxBytes)
-        {
-            throw TooLarge(maxBytes);
-        }
-
-        await using var source = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-        var buffer = new MemoryStream();
-        var chunk = new byte[81_920];
-        int read;
-        while ((read = await source.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
-        {
-            if (buffer.Length + read > maxBytes)
-            {
-                await buffer.DisposeAsync().ConfigureAwait(false);
-                throw TooLarge(maxBytes);
-            }
-
-            buffer.Write(chunk, 0, read);
-        }
-
-        buffer.Position = 0;
-        return buffer;
     }
 
     private static IndexerException TooLarge(long maxBytes) =>

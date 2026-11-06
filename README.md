@@ -52,6 +52,11 @@ Nested keys use a double underscore.
 | `SPOTTIFY_Spottify__Indexer__Limit` | `50` | Releases per search |
 | `SPOTTIFY_Spottify__Indexer__RequestTimeout` | `00:00:30` | Longest wait for the indexer |
 
+| `SPOTTIFY_Spottify__Sabnzbd__BaseUrl` | none | Address of SABnzbd, e.g. `http://sabnzbd:8080/`. Setting any `Sabnzbd` value switches the downloader on. Same http rule as for the indexer |
+| `SPOTTIFY_Spottify__Sabnzbd__ApiKey` | none | **Secret.** The API key of SABnzbd (Config, General), not the NZB key |
+| `SPOTTIFY_Spottify__Sabnzbd__Category` | `music` | Category for every job; create it in SABnzbd under Config, Categories |
+| `SPOTTIFY_Spottify__Sabnzbd__RemotePath` / `LocalPath` | none | Only if SABnzbd and this service see the download folder under different paths, e.g. `/downloads` and `/data/downloads`. Set both or none |
+
 Secrets such as API keys and tokens will only be read from the environment and must never be committed.
 
 ## Song lookup (MusicBrainz)
@@ -85,6 +90,25 @@ SPOTTIFY_LIVE_TESTS=1 dotnet test --filter FullyQualifiedName~NewznabLive
 
 If it fails, the exception message says whether the key was refused, the limit is reached or the indexer did not answer.
 Indexers whose API is not below `api` of the base address, or that do not support `t=search`, are not supported yet.
+
+## Download (SABnzbd)
+
+`IDownloader` hands an NZB link to SABnzbd (`mode=addurl`, category `music`, a job name) and returns the job id, then reports the state of the job: `Queued`, `Downloading`, `Extracting` (verify, repair, unpack, move), `Completed` with the finished folder, or `Failed` with the reason.
+A job that SABnzbd does not know any more (removed there) is reported as `Failed`, not thrown.
+SABnzbd moves a job from its queue to its history when the download ends, so the status looks in both and checks twice before it calls a job unknown.
+The folder is translated with `RemotePath` and `LocalPath` when the two programs see it under different paths; in the compose stack (TASK-7) both should mount the same path and need no mapping.
+
+Errors are `DownloaderException`, or `DownloaderAuthenticationException` for a rejected key.
+Like the indexer client it keeps the API key out of messages and logs, limits the size of answers and applies one timeout to headers and body.
+The JSON answers in the tests were written from the SABnzbd API documentation, not recorded from a running SABnzbd.
+
+To check your own SABnzbd (it starts no download, it only asks for a job that cannot exist):
+
+```bash
+export SPOTTIFY_Spottify__Sabnzbd__BaseUrl=http://localhost:8080/
+export SPOTTIFY_Spottify__Sabnzbd__ApiKey=...      # keep it out of shell history and out of the repo
+SPOTTIFY_LIVE_TESTS=1 dotnet test --filter FullyQualifiedName~SabnzbdLive
+```
 
 ## Docker
 

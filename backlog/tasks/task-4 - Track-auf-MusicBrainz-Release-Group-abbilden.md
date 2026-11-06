@@ -1,11 +1,11 @@
 ---
 id: TASK-4
 title: 'Metadaten: Songanfrage per MusicBrainz zu Album auflösen'
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-06T12:52:00Z'
-updated_date: '2026-11-06T15:05:00Z'
+updated_date: '2026-11-06T15:40:00Z'
 labels: []
 dependencies:
   - TASK-2
@@ -47,3 +47,9 @@ Qodo-Review PR #2 (4 mittlere Befunde): behoben wurden 1) nur erste 100 Editione
 
 Qodo-Review, zweite Runde: Der Timeout pro Versuch lief nur bis zum Eintreffen der Header. Ein Server, der Header sendet und beim Body stockt, hätte den Aufruf nach dem Entfernen des Client-Timeouts unbegrenzt blockiert. Behoben: Der Body wird noch innerhalb des Versuchs-Timeouts gelesen (LoadIntoBufferAsync), ein Timeout zählt als fehlgeschlagener Versuch. Zwei neue Tests (Stocken mit Retry, Stocken ohne Erfolg) schlagen ohne den Fix nach 15 s fehl und laufen mit dem Fix durch.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+MusicBrainz-Songsuche und Album-Details hinter IMetadataProvider: Studioalben zuerst, Rangfolge nach Künstler, Score und Albumtyp, Track-Liste der Standardedition, höfliche HTTP-Pipeline (1 Anfrage pro 1,1 s, Retries, Timeout pro Versuch inklusive Body). Verifiziert mit 85 Tests, Live-Stichprobe an 9 Songs und zwei Qodo-Runden. Ausgelagert: TASK-16 (Suche über Seite 1 hinaus) und TASK-17 (Albumnamen-Suche, genaueres Jahr). PR #2 gemergt.
+<!-- SECTION:FINAL_SUMMARY:END -->
