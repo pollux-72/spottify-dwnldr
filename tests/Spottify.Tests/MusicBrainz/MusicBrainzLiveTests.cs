@@ -4,18 +4,6 @@ using Spottify.Infrastructure.MusicBrainz;
 
 namespace Spottify.Tests.MusicBrainz;
 
-/// <summary>Runs only when <c>SPOTTIFY_LIVE_TESTS=1</c>, so CI and normal runs never hit the real service.</summary>
-public sealed class LiveFactAttribute : FactAttribute
-{
-    public LiveFactAttribute()
-    {
-        if (Environment.GetEnvironmentVariable("SPOTTIFY_LIVE_TESTS") != "1")
-        {
-            Skip = "Set SPOTTIFY_LIVE_TESTS=1 to call the real MusicBrainz API.";
-        }
-    }
-}
-
 public sealed class MusicBrainzLiveTests
 {
     [LiveFact]

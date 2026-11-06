@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
 using Spottify.Host;
 using Spottify.Infrastructure.MusicBrainz;
+using Spottify.Infrastructure.Newznab;
 using Spottify.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,14 @@ Directory.CreateDirectory(options.DataDirectory);
 
 builder.Services.AddSpottifyPersistence(options.DatabasePath);
 builder.Services.AddMusicBrainz(musicBrainz);
+
+// The indexer is optional until it is set up (backlog TASK-15). Setting any Spottify:Indexer value switches it on
+// and then requires a complete configuration, so a half-configured indexer fails at startup instead of at search time.
+if (builder.Configuration.GetSection(NewznabOptions.SectionName).Exists())
+{
+    builder.Services.AddNewznabIndexer(BindAndValidate<NewznabOptions>(builder.Configuration, NewznabOptions.SectionName));
+}
+
 builder.Services.AddHealthChecks().AddDbContextCheck<SpottifyDbContext>();
 
 var app = builder.Build();
