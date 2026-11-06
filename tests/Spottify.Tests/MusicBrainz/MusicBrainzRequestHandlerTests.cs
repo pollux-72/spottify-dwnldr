@@ -180,6 +180,65 @@ public sealed class MusicBrainzRequestHandlerTests
     }
 
     [Fact]
+    public async Task A_body_that_stalls_after_the_headers_times_out_and_is_retried()
+    {
+        var attempts = 0;
+        var options = new MusicBrainzOptions
+        {
+            MinRequestInterval = TimeSpan.Zero,
+            RetryDelay = TimeSpan.Zero,
+            MaxRetries = 1,
+            RequestTimeout = TimeSpan.FromSeconds(1),
+        };
+        await using var harness = new MusicBrainzTestHarness(_ =>
+        {
+            attempts++;
+            return attempts == 1
+                ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StalledContent() }
+                : Json(OneAlbumHit);
+        }, options);
+
+        // Real time: the first attempt is cut off after one second, the second one succeeds.
+        var candidates = await harness.Provider.SearchAsync("A - B", CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(15));
+
+        Assert.NotEmpty(candidates);
+        Assert.Equal(2, attempts);
+    }
+
+    [Fact]
+    public async Task A_body_that_always_stalls_ends_as_an_http_error_not_as_a_hang()
+    {
+        var options = new MusicBrainzOptions
+        {
+            MinRequestInterval = TimeSpan.Zero,
+            RetryDelay = TimeSpan.Zero,
+            MaxRetries = 0,
+            RequestTimeout = TimeSpan.FromSeconds(1),
+        };
+        await using var harness = new MusicBrainzTestHarness(
+            _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StalledContent() }, options);
+
+        await Assert.ThrowsAsync<HttpRequestException>(
+            () => harness.Provider.SearchAsync("A - B", CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(15)));
+    }
+
+    /// <summary>A response whose headers have arrived but whose body never completes.</summary>
+    private sealed class StalledContent : HttpContent
+    {
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken) =>
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
+            Task.Delay(Timeout.Infinite);
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = -1;
+            return false;
+        }
+    }
+
+    [Fact]
     public async Task Cancelling_the_call_is_not_mistaken_for_a_timeout()
     {
         var options = new MusicBrainzOptions { MinRequestInterval = TimeSpan.Zero, MaxRetries = 3 };

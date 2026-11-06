@@ -91,7 +91,21 @@ internal sealed class MusicBrainzRequestHandler(
 
         try
         {
-            return await base.SendAsync(attemptRequest, attemptTimeout.Token).ConfigureAwait(false);
+            var response = await base.SendAsync(attemptRequest, attemptTimeout.Token).ConfigureAwait(false);
+
+            try
+            {
+                // Read the body while this attempt's timeout is still running. Otherwise HttpClient would read it
+                // later without any timeout, and a server that sends headers and then stalls would hang the call.
+                await response.Content.LoadIntoBufferAsync(attemptTimeout.Token).ConfigureAwait(false);
+            }
+            catch
+            {
+                response.Dispose();
+                throw;
+            }
+
+            return response;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
